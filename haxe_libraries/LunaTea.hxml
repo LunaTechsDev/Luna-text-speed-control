@@ -1,6 +1,6 @@
-# @install: lix --silent download "gh://github.com/LunaTechsDev/LunaTea#7dc692096b175a90b2ae26925009409568514412" into LunaTea/0.9.4/github/7dc692096b175a90b2ae26925009409568514412
+# @install: lix --silent download "gh://github.com/LunaTechsDev/LunaTea#dcbda1c4be4a65a016ab1c969c6374eaa242ea86" into LunaTea/0.9.4/github/dcbda1c4be4a65a016ab1c969c6374eaa242ea86
 -lib hxnodejs
 -lib jsfps
 -lib pixijs
--cp ${HAXE_LIBCACHE}/LunaTea/0.9.4/github/7dc692096b175a90b2ae26925009409568514412/src/
+-cp ${HAXE_LIBCACHE}/LunaTea/0.9.4/github/dcbda1c4be4a65a016ab1c969c6374eaa242ea86/src/
 -D LunaTea=0.9.4

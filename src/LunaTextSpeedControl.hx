@@ -1,3 +1,4 @@
+import core.Types.JsFn;
 import rm.core.Input;
 import rm.types.RM.TextState;
 import rm.Globals;
@@ -28,89 +29,83 @@ class LunaTextSpeedControl {
   trace(textSpeed);
   trace(allowSkip);
 
-  var newWinMsg = Fn.renameClass(Window_Message, MessageWinNew);
- }
-}
-
-@:keep
-class MessageWinNew extends Window_Message {
- public var activeTextSpeed: Int;
- public var originalTextSpeed: Int;
-
- #if compileMV
- public function new(x, y, width, height) {
-  super(x, y, width, height);
-  this.originalTextSpeed = LunaTextSpeedControl.textSpeed;
-  this.activeTextSpeed = LunaTextSpeedControl.textSpeed;
- }
- #else
- public function new(rect: Rectangle) {
-  super(rect);
-  this.originalTextSpeed = LunaTextSpeedControl.textSpeed;
-  this.activeTextSpeed = LunaTextSpeedControl.textSpeed;
- }
- #end
-
- public function updateTextSpeed(value) {
-  this.activeTextSpeed = value;
- }
-
- public override function processEscapeCharacter(code: String,
-   textState: String) {
-  switch (code) {
-   case '$':
-    this._goldWindow.open();
-   case '.':
-    this.startWait(15);
-   case '|':
-    this.startWait(60);
-   case '!':
-    this.startPause();
-
-   case '>':
-    this._lineShowFast = true;
-
-   case '<':
-    this._lineShowFast = false;
-
-   case '^':
-    this._pauseSkip = true;
-
-   case 'TS':
-    this.updateTextSpeed(this.obtainEscapeParam(textState).int());
-   case _:
-    super.processEscapeCharacter(code, textState);
+  Comment.title("Window_Message");
+  var _winMsgInit: JsFn = Fn.proto(Window_Message).initializeR;
+  #if compileMV
+  Fn.proto(Window_Message).initializeD = () -> {
+   _winMsgInit.call(Fn.self);
+   untyped Fn.self.originalTextSpeed = LunaTextSpeedControl.textSpeed;
+   untyped Fn.self.activeTextSpeed = LunaTextSpeedControl.textSpeed;
   }
- }
-
- #if compileMV
- public override function processNormalCharacter(textState: TextState) {
-  super.processNormalCharacter(textState);
-  if (this._lineShowFast == false && this._showFast == false)
-   this.startWait(this.activeTextSpeed);
- }
- #else
- public override function processCharacter(textState: TextState) {
-  super.processCharacter(textState);
-  var char = textState.text.charAt(textState.index);
-  trace(char.isControlCharacter(0));
-  if (this._lineShowFast == false && this._showFast == false
-   && !char.isControlCharacter(0)) {
-   this.startWait(this.activeTextSpeed);
+  #else
+  Fn.proto(Window_Message).initializeD = (rect: Rectangle) -> {
+   _winMsgInit.call(Fn.self, rect);
+   untyped Fn.self.originalTextSpeed = LunaTextSpeedControl.textSpeed;
+   untyped Fn.self.activeTextSpeed = LunaTextSpeedControl.textSpeed;
   }
- }
- #end
+  #end
 
- public override function updateWait() {
-  if (this.isTriggered() && LunaTextSpeedControl.allowSkip) {
-   this._waitCount = 0;
-   this._showFast = true;
+  untyped {
+   Fn.proto(Window_Message).updateTextSpeed = (value) -> {
+    Fn.self.activeTextSpeed = value;
+   }
   }
-  return super.updateWait();
- }
 
- public override function terminateMessage() {
-  this.activeTextSpeed = this.originalTextSpeed;
-  super.terminateMessage();
+  var _winMsgProcessEscapeCharacter: JsFn = Fn.proto(Window_Message)
+   .processEscapeCharacterR;
+  Fn.proto(Window_Message)
+   .processEscapeCharacterD = (code: String, textState: String) -> {
+    var winMsg: Window_Message = Fn.self;
+    switch (code) {
+     case 'TS':
+      untyped winMsg.updateTextSpeed(winMsg.obtainEscapeParam(textState).int());
+     case _:
+      _winMsgProcessEscapeCharacter.call(winMsg, code, textState);
+    }
+   } #if compileMV
+
+  var _winMsgProcessNormCharacter: JsFn = Fn.proto(Window_Message)
+   .processNormalCharacterR;
+  Fn.proto(Window_Message).processNormalCharacterD = (textState: TextState) -> {
+   // super.processNormalCharacter(textState);
+   _winMsgProcessNormCharacter.call(Fn.self, textState);
+   var winMsg: Window_Message = Fn.self;
+   var char = textState.text.charAt(textState.index);
+   if (winMsg.__lineShowFast == false && winMsg.__showFast == false
+    && !char.isControlCharacter(0))
+    untyped winMsg.startWait(winMsg.activeTextSpeed);
+  }
+  #else
+  var _winProcessCharacter: JsFn = Fn.proto(Window_Message).processCharacterR;
+  Fn.proto(Window_Message).processCharacterD = (textState: TextState) -> {
+   // super.processCharacter(textState);
+   var winMsg: Window_Message = Fn.self;
+   _winProcessCharacter.call(winMsg, textState);
+   var char = textState.text.charAt(textState.index);
+   trace(char.isControlCharacter(0));
+   if (winMsg.__lineShowFast == false && winMsg.__showFast == false
+    && !char.isControlCharacter(0)) {
+    untyped winMsg.startWait(winMsg.activeTextSpeed);
+   }
+  }
+  #end
+
+  var _updateWait: JsFn = Fn.proto(Window_Message).updateWaitR;
+  Fn.proto(Window_Message).updateWaitD = () -> {
+   untyped if (Fn.self.isTriggered() && LunaTextSpeedControl.allowSkip) {
+    untyped Fn.self._waitCount = 0;
+    untyped Fn.self._showFast = true;
+   }
+   return _updateWait.call(Fn.self);
+  }
+
+  var _winMsgTerminateMessage: JsFn = Fn.proto(Window_Message)
+   .terminateMessageR;
+  Fn.proto(Window_Message).terminateMessageD = () -> {
+   untyped Fn.self.activeTextSpeed = Fn.self.originalTextSpeed;
+   _winMsgTerminateMessage.call(Fn.self);
+  }
+
+  // var newWinMsg = Fn.renameClass(Window_Message, MessageWinNew);
  }
 }

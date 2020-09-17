@@ -2,7 +2,7 @@
 // Luna_TextSpeedControl.js
 //=============================================================================
 //=============================================================================
-// Build Date: 2020-09-17 18:57:16
+// Build Date: 2020-09-17 19:57:09
 //=============================================================================
 //=============================================================================
 // Made with LunaTea -- Haxe
@@ -70,7 +70,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE
 */
 (function ($hx_exports, $global) { "use strict"
-var $estr = function() { return js_Boot.__string_rec(this,''); },$hxEnums = $hxEnums || {};
 class EReg {
 	constructor(r,opt) {
 		this.r = new RegExp(r,opt.split("u").join(""))
@@ -84,7 +83,6 @@ class EReg {
 		return this.r.m != null;
 	}
 }
-EReg.__name__ = true
 class HxOverrides {
 	static cca(s,index) {
 		let x = s.charCodeAt(index)
@@ -97,14 +95,13 @@ class HxOverrides {
 		return Date.now();
 	}
 }
-HxOverrides.__name__ = true
 class LunaTextSpeedControl {
 	static main() {
-		let _this = $plugins
 		let _g = []
 		let _g1 = 0
-		while(_g1 < _this.length) {
-			let v = _this[_g1]
+		let _g2 = $plugins
+		while(_g1 < _g2.length) {
+			let v = _g2[_g1]
 			++_g1
 			if(new EReg("<LunaTxtSpeedCntrl>","ig").match(v.description)) {
 				_g.push(v)
@@ -112,71 +109,59 @@ class LunaTextSpeedControl {
 		}
 		let parameters = _g[0].parameters
 		let string = parameters["Text Speed"]
-		LunaTextSpeedControl.textSpeed = parseInt(string,10)
+		let radix = 10
+		if(radix == null) {
+			radix = 10
+		}
+		LunaTextSpeedControl.textSpeed = parseInt(string,radix)
 		LunaTextSpeedControl.allowSkip = parameters["Allow Show Fast During Wait"].trim() == "true"
-		Window_Message = MessageWinNew
+		
+//=============================================================================
+// Window_Message
+//=============================================================================
+      
+		let _winMsgInit = Window_Message.prototype.initialize
+		Window_Message.prototype.initialize = function(rect) {
+			_winMsgInit.call(this,rect)
+			this.originalTextSpeed = LunaTextSpeedControl.textSpeed
+			this.activeTextSpeed = LunaTextSpeedControl.textSpeed
+		}
+		Window_Message.prototype.updateTextSpeed = function(value) {
+			return this.activeTextSpeed = value;
+		}
+		let _winMsgProcessEscapeCharacter = Window_Message.prototype.processEscapeCharacter
+		Window_Message.prototype.processEscapeCharacter = function(code,textState) {
+			let winMsg = this
+			if(code == "TS") {
+				winMsg.updateTextSpeed(winMsg.obtainEscapeParam(textState) | 0)
+			} else {
+				_winMsgProcessEscapeCharacter.call(winMsg,code,textState)
+			}
+		}
+		let _winProcessCharacter = Window_Message.prototype.processCharacter
+		Window_Message.prototype.processCharacter = function(textState) {
+			let winMsg = this
+			_winProcessCharacter.call(winMsg,textState)
+			let char = textState.text.charAt(textState.index)
+			if(winMsg._lineShowFast == false && winMsg._showFast == false && HxOverrides.cca(char,0) >= 32) {
+				winMsg.startWait(winMsg.activeTextSpeed)
+			}
+		}
+		let _updateWait = Window_Message.prototype.updateWait
+		Window_Message.prototype.updateWait = function() {
+			if(this.isTriggered() && LunaTextSpeedControl.allowSkip) {
+				this._waitCount = 0
+				this._showFast = true
+			}
+			return _updateWait.call(this);
+		}
+		let _winMsgTerminateMessage = Window_Message.prototype.terminateMessage
+		Window_Message.prototype.terminateMessage = function() {
+			this.activeTextSpeed = this.originalTextSpeed
+			_winMsgTerminateMessage.call(this)
+		}
 	}
 }
-LunaTextSpeedControl.__name__ = true
-class MessageWinNew extends Window_Message {
-	constructor(rect) {
-		super(rect);
-		this.originalTextSpeed = LunaTextSpeedControl.textSpeed
-		this.activeTextSpeed = LunaTextSpeedControl.textSpeed
-	}
-	updateTextSpeed(value) {
-		this.activeTextSpeed = value
-	}
-	processEscapeCharacter(code,textState) {
-		switch(code) {
-		case "!":
-			this.startPause()
-			break
-		case "$":
-			this._goldWindow.open()
-			break
-		case ".":
-			this.startWait(15)
-			break
-		case "<":
-			this._lineShowFast = false
-			break
-		case ">":
-			this._lineShowFast = true
-			break
-		case "TS":
-			this.updateTextSpeed(this.obtainEscapeParam(textState) | 0)
-			break
-		case "^":
-			this._pauseSkip = true
-			break
-		case "|":
-			this.startWait(60)
-			break
-		default:
-			super.processEscapeCharacter(code,textState)
-		}
-	}
-	processCharacter(textState) {
-		super.processCharacter(textState)
-		if(this._lineShowFast == false && this._showFast == false && HxOverrides.cca(textState.text.charAt(textState.index),0) >= 32) {
-			this.startWait(this.activeTextSpeed)
-		}
-	}
-	updateWait() {
-		if(this.isTriggered() && LunaTextSpeedControl.allowSkip) {
-			this._waitCount = 0
-			this._showFast = true
-		}
-		return super.updateWait();
-	}
-	terminateMessage() {
-		this.activeTextSpeed = this.originalTextSpeed
-		super.terminateMessage()
-	}
-}
-MessageWinNew.__name__ = true
-Math.__name__ = true
 class haxe_iterators_ArrayIterator {
 	constructor(array) {
 		this.current = 0
@@ -189,105 +174,8 @@ class haxe_iterators_ArrayIterator {
 		return this.array[this.current++];
 	}
 }
-haxe_iterators_ArrayIterator.__name__ = true
-class js_Boot {
-	static __string_rec(o,s) {
-		if(o == null) {
-			return "null";
-		}
-		if(s.length >= 5) {
-			return "<...>";
-		}
-		let t = typeof(o)
-		if(t == "function" && (o.__name__ || o.__ename__)) {
-			t = "object"
-		}
-		switch(t) {
-		case "function":
-			return "<function>";
-		case "object":
-			if(o.__enum__) {
-				let e = $hxEnums[o.__enum__]
-				let n = e.__constructs__[o._hx_index]
-				let con = e[n]
-				if(con.__params__) {
-					s = s + "\t"
-					return n + "(" + ((function($this) {
-						var $r
-						let _g = []
-						{
-							let _g1 = 0
-							let _g2 = con.__params__
-							while(true) {
-								if(!(_g1 < _g2.length)) {
-									break
-								}
-								let p = _g2[_g1]
-								_g1 = _g1 + 1
-								_g.push(js_Boot.__string_rec(o[p],s))
-							}
-						}
-						$r = _g
-						return $r;
-					}(this))).join(",") + ")"
-				} else {
-					return n;
-				}
-			}
-			if(((o) instanceof Array)) {
-				let str = "["
-				s += "\t";
-				let _g = 0
-				let _g1 = o.length
-				while(_g < _g1) {
-					let i = _g++
-					str += (i > 0 ? "," : "") + js_Boot.__string_rec(o[i],s);
-				}
-				str += "]";
-				return str;
-			}
-			let tostr
-			try {
-				tostr = o.toString
-			} catch( _g ) {
-				return "???";
-			}
-			if(tostr != null && tostr != Object.toString && typeof(tostr) == "function") {
-				let s2 = o.toString()
-				if(s2 != "[object Object]") {
-					return s2;
-				}
-			}
-			let str = "{\n"
-			s += "\t";
-			let hasp = o.hasOwnProperty != null
-			let k = null
-			for( k in o ) {
-			if(hasp && !o.hasOwnProperty(k)) {
-				continue
-			}
-			if(k == "prototype" || k == "__class__" || k == "__super__" || k == "__interfaces__" || k == "__properties__") {
-				continue
-			}
-			if(str.length != 2) {
-				str += ", \n";
-			}
-			str += s + k + " : " + js_Boot.__string_rec(o[k],s);
-			}
-			s = s.substring(1)
-			str += "\n" + s + "}";
-			return str;
-		case "string":
-			return o;
-		default:
-			return String(o);
-		}
-	}
-}
-js_Boot.__name__ = true
 class _$LTGlobals_$ {
 }
-_$LTGlobals_$.__name__ = true
 class utils_Fn {
 	static proto(obj) {
 		return obj.prototype;
@@ -299,13 +187,9 @@ class utils_Fn {
 		return (fn)(obj);
 	}
 }
-utils_Fn.__name__ = true
 if(typeof(performance) != "undefined" ? typeof(performance.now) == "function" : false) {
 	HxOverrides.now = performance.now.bind(performance)
 }
-String.__name__ = true
-Array.__name__ = true
-js_Boot.__toStr = ({ }).toString
 LunaTextSpeedControl.textSpeed = 2
 LunaTextSpeedControl.allowSkip = true
 LunaTextSpeedControl.main()
