@@ -12,6 +12,7 @@ import rm.sprites.Sprite_Base;
 
 using Std;
 using StringTools;
+using core.StringExtensions;
 
 class LunaTextSpeedControl {
  public static var textSpeed: Int = 2;
@@ -83,7 +84,7 @@ class MessageWinNew extends Window_Message {
  }
 
  #if compileMV
- public override function processNormalCharacter(textState: String) {
+ public override function processNormalCharacter(textState: TextState) {
   super.processNormalCharacter(textState);
   if (this._lineShowFast == false && this._showFast == false)
    this.startWait(this.activeTextSpeed);
@@ -91,8 +92,12 @@ class MessageWinNew extends Window_Message {
  #else
  public override function processCharacter(textState: TextState) {
   super.processCharacter(textState);
-  if (this._lineShowFast == false && this._showFast == false)
+  var char = textState.text.charAt(textState.index);
+  trace(char.isControlCharacter(0));
+  if (this._lineShowFast == false && this._showFast == false
+   && !char.isControlCharacter(0)) {
    this.startWait(this.activeTextSpeed);
+  }
  }
  #end
 

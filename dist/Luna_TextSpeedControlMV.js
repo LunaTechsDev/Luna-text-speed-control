@@ -2,7 +2,7 @@
 // Luna_TextSpeedControlMV.js
 //=============================================================================
 //=============================================================================
-// Build Date: 2020-08-23 10:45:28
+// Build Date: 2020-09-17 18:57:16
 //=============================================================================
 //=============================================================================
 // Made with LunaTea -- Haxe
@@ -69,7 +69,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE
 */
-(function ($global) { "use strict"
+(function ($hx_exports, $global) { "use strict"
 var $estr = function() { return js_Boot.__string_rec(this,''); },$hxEnums = $hxEnums || {};
 class EReg {
 	constructor(r,opt) {
@@ -107,7 +107,7 @@ class LunaTextSpeedControl {
 LunaTextSpeedControl.__name__ = true
 class MessageWinNew extends Window_Message {
 	constructor(x,y,width,height) {
-		super(x,y,width,height)
+		super(x,y,width,height);
 		this.originalTextSpeed = LunaTextSpeedControl.textSpeed
 		this.activeTextSpeed = LunaTextSpeedControl.textSpeed
 	}
@@ -279,6 +279,12 @@ class utils_Fn {
 	static proto(obj) {
 		return obj.prototype;
 	}
+	static updateProto(obj,fn) {
+		return (fn)(obj.prototype);
+	}
+	static updateEntity(obj,fn) {
+		return (fn)(obj);
+	}
 }
 utils_Fn.__name__ = true
 String.__name__ = true
@@ -287,4 +293,4 @@ js_Boot.__toStr = ({ }).toString
 LunaTextSpeedControl.textSpeed = 2
 LunaTextSpeedControl.allowSkip = true
 LunaTextSpeedControl.main()
-})({})
+})(typeof exports != "undefined" ? exports : typeof window != "undefined" ? window : typeof self != "undefined" ? self : this, {})

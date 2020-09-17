@@ -38,4 +38,4 @@
 -js dist/Luna_TextSpeedControlMV.js
 -main LunaTextSpeedControl
 
---cmd haxe -D gamePath=games/KinoCreates --run CleanJs
+--cmd haxe -D gamePath=../games/LunaTechsMZ --run CleanJs
